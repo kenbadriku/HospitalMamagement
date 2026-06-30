@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  RECEPTIONIST
+  LAB_TECH
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CHECKED_IN
+  COMPLETED
+  CANCELLED
+}
+
+enum AdmissionStatus {
+  ADMITTED
+  DISCHARGED
+}
+
+enum LabOrderStatus {
+  ORDERED
+  COLLECTED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum LabItemStatus {
+  PENDING
+  COMPLETED
+}
+
+enum BillStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+enum WardType {
+  GENERAL
+  PRIVATE
+  ICU
+  MATERNITY
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(RECEPTIONIST)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  doctor       Doctor?
+}
+
+model Patient {
+  id               String                  @id @default(cuid())
+  patientNumber    String                  @unique
+  firstName        String
+  lastName         String
+  gender           String
+  dateOfBirth      DateTime
+  phone            String
+  email            String?
+  address          String
+  bloodGroup       String?
+  allergies        String?
+  emergencyContact String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  appointments     Appointment[]
+  admissions       InpatientAdmission[]
+  labOrders        LabOrder[]
+  bills            Bill[]
+
+  @@index([lastName, firstName])
+}
+
+model Doctor {
+  id                 String         @id @default(cuid())
+  userId             String         @unique
+  user               User           @relation(fields: [userId], references: [id])
+  firstName          String
+  lastName           String
+  specialization     String
+  registrationNumber String         @unique
+  phone              String
+  consultationFee    Decimal        @db.Decimal(12, 2)
+  availableDays      String
+  availableFrom      String
+  availableTo        String
+  createdAt          DateTime       @default(now())
+  appointments       Appointment[]
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  patientId String
+  patient   Patient           @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor            @relation(fields: [doctorId], references: [id])
+  date      DateTime
+  time      String
+  status    AppointmentStatus @default(SCHEDULED)
+  reason    String?
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  bill      Bill?
+
+  @@index([doctorId, date, time])
+}
+
+model InpatientAdmission {
+  id            String           @id @default(cuid())
+  patientId     String
+  patient       Patient          @relation(fields: [patientId], references: [id])
+  doctorId      String
+  ward          WardType
+  bedNumber     String
+  admissionDate DateTime         @default(now())
+  dischargeDate DateTime?
+  diagnosis     String?
+  status        AdmissionStatus  @default(ADMITTED)
+  dailyFee      Decimal          @db.Decimal(12, 2)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  bills         Bill[]
+
+  @@index([ward, bedNumber, status])
+}
+
+model LabTest {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  code           String          @unique
+  category       String
+  specimen       String
+  price          Decimal         @db.Decimal(12, 2)
+  referenceRange String?
+  unit           String?
+  createdAt      DateTime        @default(now())
+  labOrderItems  LabOrderItem[]
+}
+
+model LabOrder {
+  id          String          @id @default(cuid())
+  orderNumber String          @unique
+  patientId   String
+  patient     Patient         @relation(fields: [patientId], references: [id])
+  doctorId    String?
+  status      LabOrderStatus  @default(ORDERED)
+  priority    String          @default("ROUTINE")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  items       LabOrderItem[]
+  bill        Bill?
+
+  @@index([status, priority])
+}
+
+model LabOrderItem {
+  id          String       @id @default(cuid())
+  labOrderId  String
+  labOrder    LabOrder     @relation(fields: [labOrderId], references: [id])
+  labTestId   String
+  labTest     LabTest      @relation(fields: [labTestId], references: [id])
+  result      String?
+  resultNotes String?
+  status      LabItemStatus @default(PENDING)
+  completedAt DateTime?
+}
+
+model Bill {
+  id            String               @id @default(cuid())
+  billNumber    String               @unique
+  patientId     String
+  patient       Patient              @relation(fields: [patientId], references: [id])
+  appointmentId String?              @unique
+  appointment   Appointment?         @relation(fields: [appointmentId], references: [id])
+  admissionId   String?
+  admission     InpatientAdmission?  @relation(fields: [admissionId], references: [id])
+  labOrderId    String?              @unique
+  labOrder      LabOrder?            @relation(fields: [labOrderId], references: [id])
+  totalAmount   Decimal              @db.Decimal(12, 2)
+  paidAmount    Decimal              @default(0) @db.Decimal(12, 2)
+  status        BillStatus           @default(UNPAID)
+  paymentMethod String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  items         BillItem[]
+
+  @@index([status, patientId])
+}
+
+model BillItem {
+  id          String   @id @default(cuid())
+  billId      String
+  bill        Bill     @relation(fields: [billId], references: [id])
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(12, 2)
+  total       Decimal  @db.Decimal(12, 2)
+}
