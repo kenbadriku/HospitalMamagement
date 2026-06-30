@@ -1,9 +1,11 @@
+import "dotenv/config";
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? "development-secret",
   session: { strategy: "jwt" },
   providers: [
     Credentials({
