@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
