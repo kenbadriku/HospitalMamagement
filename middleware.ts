@@ -10,10 +10,13 @@ export default withAuth(
       "/dashboard": ["ADMIN", "DOCTOR", "RECEPTIONIST", "LAB_TECH"],
       "/patients": ["ADMIN", "DOCTOR", "RECEPTIONIST"],
       "/doctors": ["ADMIN", "RECEPTIONIST"],
+      "/staff": ["ADMIN", "RECEPTIONIST"],
       "/appointments": ["ADMIN", "DOCTOR", "RECEPTIONIST"],
-      "/inpatients": ["ADMIN", "DOCTOR"],
-      "/lab": ["ADMIN", "LAB_TECH", "DOCTOR"],
+      "/pharmacy": ["ADMIN", "RECEPTIONIST", "LAB_TECH"],
       "/billing": ["ADMIN", "RECEPTIONIST"],
+      "/lab": ["ADMIN", "LAB_TECH", "DOCTOR"],
+      "/equipment": ["ADMIN", "RECEPTIONIST"],
+      "/inpatients": ["ADMIN", "DOCTOR"],
     };
 
     for (const [prefix, allowed] of Object.entries(roleMap)) {
@@ -37,9 +40,12 @@ export const config = {
     "/dashboard/:path*",
     "/patients/:path*",
     "/doctors/:path*",
+    "/staff/:path*",
     "/appointments/:path*",
-    "/inpatients/:path*",
-    "/lab/:path*",
+    "/pharmacy/:path*",
     "/billing/:path*",
+    "/lab/:path*",
+    "/equipment/:path*",
+    "/inpatients/:path*",
   ],
 };

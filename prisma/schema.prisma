@@ -75,6 +75,7 @@ model Patient {
   bloodGroup       String?
   allergies        String?
   emergencyContact String?
+  status           String                  @default("Active")
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
   appointments     Appointment[]
@@ -87,37 +88,83 @@ model Patient {
 
 model Doctor {
   id                 String         @id @default(cuid())
-  userId             String         @unique
-  user               User           @relation(fields: [userId], references: [id])
+  userId             String?        @unique
+  user               User?          @relation(fields: [userId], references: [id])
   firstName          String
   lastName           String
-  specialization     String
-  registrationNumber String         @unique
+  department         String         @default("General")
+  specialty          String         @default("General Medicine")
+  qualification      String         @default("MBBS")
+  experienceYears    Int            @default(5)
+  email              String?
   phone              String
+  registrationNumber String         @unique
   consultationFee    Decimal        @db.Decimal(12, 2)
-  availableDays      String
-  availableFrom      String
-  availableTo        String
+  availableDays      String         @default("Mon-Fri")
+  availableFrom      String         @default("09:00")
+  availableTo        String         @default("17:00")
+  status             String         @default("Active")
   createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   appointments       Appointment[]
 }
 
+model Staff {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  phone        String
+  department   String
+  role         String
+  status       String   @default("Active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Appointment {
-  id        String            @id @default(cuid())
-  patientId String
-  patient   Patient           @relation(fields: [patientId], references: [id])
-  doctorId  String
-  doctor    Doctor            @relation(fields: [doctorId], references: [id])
-  date      DateTime
-  time      String
-  status    AppointmentStatus @default(SCHEDULED)
-  reason    String?
-  notes     String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  bill      Bill?
+  id          String            @id @default(cuid())
+  patientId   String
+  patient     Patient           @relation(fields: [patientId], references: [id])
+  doctorId    String
+  doctor      Doctor            @relation(fields: [doctorId], references: [id])
+  department  String            @default("General")
+  date        DateTime
+  time        String
+  status      AppointmentStatus @default(SCHEDULED)
+  reason      String?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  bill        Bill?
 
   @@index([doctorId, date, time])
+}
+
+model PharmacyItem {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  category     String
+  quantity     Int      @default(0)
+  price        Decimal  @db.Decimal(12, 2)
+  supplier     String
+  expiryDate   DateTime?
+  description  String?
+  status       String   @default("In Stock")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Equipment {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  department       String
+  status           String   @default("Operational")
+  lastMaintenance  DateTime?
+  nextMaintenance  DateTime?
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model InpatientAdmission {
