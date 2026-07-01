@@ -34,29 +34,31 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10">
-      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-3xl border border-slate-800 bg-white p-8 shadow-xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-sky-700">Secure sign in</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Hospital management login</h1>
-        <p className="mt-3 text-sm text-slate-600">Use your staff credentials to access the system.</p>
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.14),_transparent_35%)] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white/95 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur sm:p-10">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">Portal access</p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-900">Sign in</h1>
+          <p className="mt-2 text-sm text-slate-600">Enter your credentials to access the hospital workspace.</p>
+        </div>
 
-        {error ? <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p> : null}
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-600">{error}</p> : null}
 
-        <div className="mt-6 space-y-4">
           <label className="block text-sm font-medium text-slate-700">
             Email
-            <input name="email" type="email" required className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 outline-none ring-0 focus:border-sky-500" />
+            <input name="email" type="email" autoComplete="email" required className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500" />
           </label>
           <label className="block text-sm font-medium text-slate-700">
             Password
-            <input name="password" type="password" required className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 outline-none ring-0 focus:border-sky-500" />
+            <input name="password" type="password" autoComplete="current-password" required className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500" />
           </label>
-        </div>
 
-        <button type="submit" disabled={loading} className="mt-6 w-full rounded-full bg-slate-950 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70">
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
+          <button type="submit" disabled={loading} className="w-full rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70">
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

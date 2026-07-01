@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 const navigation = [
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/doctor', label: 'Doctor Portal' },
   { href: '/patients', label: 'Patients' },
   { href: '/doctors', label: 'Doctors' },
   { href: '/staff', label: 'Staff' },
@@ -35,7 +36,7 @@ export default function AdminPageShell({
           <div className="flex items-center justify-between lg:block">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-teal-300">Zionova</p>
-              <h2 className="mt-2 text-xl font-semibold">HealthSphere Admin</h2>
+              <h2 className="mt-2 text-xl font-semibold">HealthSphere Care Portal</h2>
             </div>
             <button className="rounded-full border border-white/15 px-3 py-2 text-sm lg:hidden" onClick={() => setOpen((value) => !value)}>
               Menu
@@ -66,7 +67,7 @@ export default function AdminPageShell({
 
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
             <p className="font-semibold text-white">Care delivery workspace</p>
-            <p className="mt-2 text-sm">Monitor operations, keep records current, and support your care team from one modern console.</p>
+            <p className="mt-2 text-sm">Monitor operations, support doctors, and keep clinical workflows moving from one modern console.</p>
           </div>
         </aside>
 
