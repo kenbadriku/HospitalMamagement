@@ -100,6 +100,21 @@ async function main() {
     await prisma.appointment.create({ data: appointment });
   }
 
+  const services = [
+    { name: "Primary Care", description: "Routine checkups and general wellness consultations.", category: "General", durationMinutes: 30, price: 80000, featured: true, imageUrl: "/services/primary-care.jpg" },
+    { name: "Cardiology", description: "Heart health screenings and specialist cardiology visits.", category: "Specialist", durationMinutes: 45, price: 150000, featured: true, imageUrl: "/services/cardiology.jpg" },
+    { name: "Pediatrics", description: "Child wellness reviews and pediatric follow-ups.", category: "Specialist", durationMinutes: 30, price: 90000, featured: true, imageUrl: "/services/pediatrics.jpg" },
+    { name: "Laboratory", description: "Diagnostic tests and lab sample processing.", category: "Diagnostics", durationMinutes: 20, price: 60000, featured: false, imageUrl: "/services/lab.jpg" },
+  ];
+
+  for (const service of services) {
+    await prisma.service.upsert({
+      where: { name: service.name },
+      update: {},
+      create: { ...service, price: toDecimal(service.price) },
+    });
+  }
+
   const pharmacyItems = [
     { name: "Paracetamol", category: "Pain Relief", quantity: 200, price: 2500, supplier: "Medplus", expiryDate: new Date("2027-12-31"), description: "Fever and pain relief", status: "In Stock" },
     { name: "Amoxicillin", category: "Antibiotics", quantity: 120, price: 4500, supplier: "Healthline", expiryDate: new Date("2027-10-15"), description: "Broad-spectrum antibiotic", status: "In Stock" },
@@ -165,6 +180,21 @@ async function main() {
       where: { billNumber: bill.billNumber },
       update: {},
       create: bill,
+    });
+  }
+
+  const createdServices = await prisma.service.findMany({ take: 4 });
+  const transactions = [
+    { transactionNumber: "TXN-1001", patientId: createdPatients[0].id, appointmentId: (await prisma.appointment.findFirst({ where: { patientId: createdPatients[0].id } }))!.id, serviceId: createdServices[0].id, amount: toDecimal(80000), status: "Completed", method: "Card", notes: "Primary care consultation" },
+    { transactionNumber: "TXN-1002", patientId: createdPatients[1].id, serviceId: createdServices[1].id, amount: toDecimal(150000), status: "Pending", method: "Cash", notes: "Cardiology review" },
+    { transactionNumber: "TXN-1003", patientId: createdPatients[2].id, serviceId: createdServices[2].id, amount: toDecimal(90000), status: "Completed", method: "Insurance", notes: "Pediatric follow-up" },
+  ];
+
+  for (const transaction of transactions) {
+    await prisma.transaction.upsert({
+      where: { transactionNumber: transaction.transactionNumber },
+      update: {},
+      create: transaction,
     });
   }
 

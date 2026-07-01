@@ -11,6 +11,7 @@ enum Role {
   DOCTOR
   RECEPTIONIST
   LAB_TECH
+  PATIENT
 }
 
 enum AppointmentStatus {
@@ -82,6 +83,7 @@ model Patient {
   admissions       InpatientAdmission[]
   labOrders        LabOrder[]
   bills            Bill[]
+  transactions     Transaction[]
 
   @@index([lastName, firstName])
 }
@@ -128,6 +130,8 @@ model Appointment {
   patient     Patient           @relation(fields: [patientId], references: [id])
   doctorId    String
   doctor      Doctor            @relation(fields: [doctorId], references: [id])
+  serviceId   String?
+  service     Service?          @relation(fields: [serviceId], references: [id])
   department  String            @default("General")
   date        DateTime
   time        String
@@ -137,8 +141,24 @@ model Appointment {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   bill        Bill?
+  transaction Transaction?
 
   @@index([doctorId, date, time])
+}
+
+model Service {
+  id               String         @id @default(cuid())
+  name             String         @unique
+  description      String
+  category         String
+  durationMinutes  Int            @default(30)
+  price            Decimal        @db.Decimal(12, 2)
+  featured         Boolean        @default(false)
+  imageUrl         String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  appointments     Appointment[]
+  transactions     Transaction[]
 }
 
 model PharmacyItem {
@@ -257,4 +277,21 @@ model BillItem {
   quantity    Int      @default(1)
   unitPrice   Decimal  @db.Decimal(12, 2)
   total       Decimal  @db.Decimal(12, 2)
+}
+
+model Transaction {
+  id                String       @id @default(cuid())
+  transactionNumber String       @unique
+  patientId         String?
+  patient           Patient?     @relation(fields: [patientId], references: [id])
+  appointmentId     String?      @unique
+  appointment       Appointment? @relation(fields: [appointmentId], references: [id])
+  serviceId         String?
+  service           Service?     @relation(fields: [serviceId], references: [id])
+  amount            Decimal      @db.Decimal(12, 2)
+  status            String       @default("Completed")
+  method            String?
+  notes             String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }

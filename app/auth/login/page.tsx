@@ -19,6 +19,7 @@ export default function LoginPage() {
       email: formData.get("email"),
       password: formData.get("password"),
       redirect: false,
+      callbackUrl: "/dashboard",
     });
 
     setLoading(false);
